@@ -33,137 +33,43 @@ It is assumed that there will always be a safe path that the agent can take to e
 <h3>Program:</h3>
 
 ```
-import random
+room={
+(0,1):"Breeze",
+(1,1):"Save",
+(2,1):"GOLD"
+}
 
-# ----------------- WORLD SETUP -----------------
-SIZE = 4
-world = [['' for _ in range(SIZE)] for _ in range(SIZE)]
+x=y=0
+score=0
 
-# Place Gold
-gold_pos = (random.randint(0, SIZE-1), random.randint(0, SIZE-1))
-world[gold_pos[0]][gold_pos[1]] = 'G'
-
-# Place Pits
-num_pits = 3
-pits = []
-
-while len(pits) < num_pits:
-    pit = (random.randint(0, SIZE-1), random.randint(0, SIZE-1))
-    if pit not in pits and pit != gold_pos:
-        pits.append(pit)
-        world[pit[0]][pit[1]] = 'P'
-
-# Place Wumpus
 while True:
-    wumpus = (random.randint(0, SIZE-1), random.randint(0, SIZE-1))
-    if wumpus != gold_pos and wumpus not in pits:
-        world[wumpus[0]][wumpus[1]] = 'W'
-        break
 
-# ----------------- GENERATE PERCEPTS -----------------
-percepts = [['' for _ in range(SIZE)] for _ in range(SIZE)]
+    print("\npress u to move up")
+    print("press d to move down")
+    print("press l to move left")
+    print("press r to move right")
 
-for i in range(SIZE):
-    for j in range(SIZE):
-        if world[i][j] == '':
-            for dx, dy in [(-1,0),(1,0),(0,-1),(0,1)]:
-                ni, nj = i+dx, j+dy
-                if 0 <= ni < SIZE and 0 <= nj < SIZE:
-                    if world[ni][nj] == 'P':
-                        percepts[i][j] += 'B'   # Breeze
-                    if world[ni][nj] == 'W':
-                        percepts[i][j] += 'S'   # Stench
+    m=input()
 
-# ----------------- AGENT SETUP -----------------
-agent_pos = (0, 0)
-visited = set()
-score = 0
-safe_cells = set()
-frontier = [(0, 0)]  # cells to explore
+    if m=="u":x-=1
+    if m=="d":x+=1
+    if m=="l":y-=1
+    if m=="r":y+=1
 
+    if (x,y) in room:
 
-def print_world():
-    print("WORLD:")
-    for row in world:
-        print(row)
-    print()
+        print("\ncurrent location:",room[(x,y)])
 
-
-def print_percepts():
-    print("PERCEPTS:")
-    for row in percepts:
-        print(row)
-    print()
-
-
-def check_current_location():
-    global score
-    x, y = agent_pos
-
-    if world[x][y] == 'P':
-        print(f"Agent at {(x,y)}: FELL IN PIT! Game Over.")
-        return True
-    elif world[x][y] == 'W':
-        print(f"Agent at {(x,y)}: EATEN BY WUMPUS! Game Over.")
-        return True
-    elif world[x][y] == 'G':
-        print(f"Agent at {(x,y)}: GOLD FOUND! You won!")
-        score += 1000
-        print(f"Score: {score}")
-        return True
-    return False
-
-
-def get_neighbors(pos):
-    x, y = pos
-    neighbors = []
-    for dx, dy in [(-1,0),(1,0),(0,-1),(0,1)]:
-        nx, ny = x+dx, y+dy
-        if 0 <= nx < SIZE and 0 <= ny < SIZE:
-            neighbors.append((nx, ny))
-    return neighbors
-
-
-# Simple inference: mark safe cells based on percepts
-def infer_safe():
-    global safe_cells
-    for x, y in visited:
-        if percepts[x][y] == '':
-            for nx, ny in get_neighbors((x, y)):
-                if (nx, ny) not in visited:
-                    safe_cells.add((nx, ny))
-
-
-# ----------------- AUTOMATIC AGENT LOOP -----------------
-print_world()
-print_percepts()
-
-while frontier:
-    agent_pos = frontier.pop(0)
-
-    if agent_pos in visited:
-        continue
-
-    visited.add(agent_pos)
-    score -= 10  # cost of moving
-
-    print(f"Agent moving to {agent_pos}, percepts: {percepts[agent_pos[0]][agent_pos[1]]}")
-
-    if check_current_location():
-        break
-
-    infer_safe()
-
-    # Add new safe cells to frontier
-    for cell in safe_cells:
-        if cell not in visited and cell not in frontier:
-            frontier.append(cell)
-
-print("Final Score:", score)
+        if room[(x,y)]=="GOLD":
+            score=1000
+            print("\nGOLD FOUND!You won....")
+            print("Your score is:",score)
+            break
 ```
 <h3>Output:</h3>
 
-<img width="444" height="405" alt="image" src="https://github.com/user-attachments/assets/e70efe37-f052-41f9-9eba-2aa7f5018f93" />
+<img width="384" height="620" alt="image" src="https://github.com/user-attachments/assets/b646502b-43ce-4ed9-aefc-015290f42244" />
+
 <hr>
 <h3>Result:</h3>
 
